@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frames Strategy — Shai Nissenboim</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg:        #F5F4F0;
+      --black:     #0A0A0A;
+      --white:     #ffffff;
+      --red:       #E63946;
+      --grey:      #888888;
+      --grey-text: #444444;
+      --border:    #E0DED8;
+      --step-num:  #E8E6E0;
+      --font:      "helvetica neue", helvetica, arial, sans-serif;
+      --max:       1200px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--black);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ══════════ NAV ══════════ */
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      transition: transform 0.3s ease;
+    }
+
+    nav.hidden { transform: translateY(-100%); }
+
+    .nav-brand {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .nav-contact {
+      font-size: 11px;
+      color: var(--grey);
+      transition: color 0.2s ease;
+    }
+
+    .nav-contact:hover { color: var(--red); }
+
+    /* ══════════ HERO ══════════ */
+
+    .hero {
+      min-height: 100vh;
+      padding: 0 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hero-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 48px;
+    }
+
+    .hero-headline {
+      line-height: 0.92;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+    }
+
+    .hero-line         { display: block; font-size: clamp(64px, 12.5vw, 160px); }
+    .hero-line--thin   { font-weight: 300; color: var(--black); }
+    .hero-line--bold   { font-weight: 900; color: var(--black); }
+    .hero-line--medium { font-size: clamp(36px, 6.5vw, 84px); font-weight: 300; color: var(--black); }
+    .hero-line--red    { font-weight: 900; color: var(--red); }
+
+    .hero-footer {
+      position: absolute;
+      bottom: 40px; left: 48px; right: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hero-scroll  { font-size: 11px; color: var(--grey); letter-spacing: 0.05em; }
+    .hero-tagline { font-size: 11px; color: var(--grey); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* ══════════ MANIFESTO ══════════ */
+
+    .manifesto { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+    .manifesto-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 120px 48px;
+      display: grid;
+      grid-template-columns: 30% 70%;
+      align-items: start;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--red);
+    }
+
+    .manifesto-quote {
+      font-size: clamp(28px, 3.5vw, 42px);
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .manifesto-body {
+      margin-top: 48px;
+      font-size: 18px;
+      line-height: 1.75;
+      color: var(--grey-text);
+      max-width: 560px;
+    }
+
+    /* ══════════ ABOUT ══════════ */
+
+    .about {
+      background: var(--black);
+      color: var(--white);
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .about-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 120px 48px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    /* To add your photo: replace the div.photo-placeholder with:
+       <img src="shai.jpg" alt="Shai Nissenboim" style="width:380px;height:480px;object-fit:cover;"> */
+    .photo-placeholder {
+      width: 380px;
+      height: 480px;
+      background: #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .photo-placeholder-text {
+      font-size: 12px;
+      color: #555555;
+      letter-spacing: 0.05em;
+    }
+
+    .about-name {
+      font-size: clamp(52px, 7vw, 88px);
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 28px;
+    }
+
+    .about-role {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--red);
+      margin-bottom: 12px;
+    }
+
+    .about-location {
+      font-size: 13px;
+      color: var(--grey);
+      letter-spacing: 0.05em;
+      margin-bottom: 48px;
+    }
+
+    .about-body { font-size: 18px; line-height: 1.8; color: #cccccc; }
+    .about-body p + p { margin-top: 24px; }
+
+    /* ══════════ PROCESS ══════════ */
+
+    .process { background: var(--bg); border-bottom: 1px solid var(--border); }
+
+    .process-inner { max-width: var(--max); margin: 0 auto; padding: 120px 48px; }
+
+    .process-header { margin-bottom: 80px; }
+
+    .process-heading {
+      font-size: clamp(40px, 5.5vw, 64px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      line-height: 1.0;
+      margin-top: 20px;
+      margin-bottom: 24px;
+    }
+
+    .process-intro { font-size: 18px; color: var(--grey); }
+
+    .process-list { list-style: none; }
+
+    .process-item {
+      display: grid;
+      grid-template-columns: 160px 1fr auto;
+      align-items: center;
+      gap: 48px;
+      padding: 48px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .process-item:last-child { border-bottom: 1px solid var(--border); }
+
+    .process-num {
+      font-size: clamp(72px, 9vw, 120px);
+      font-weight: 900;
+      color: var(--step-num);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .process-title { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 12px; }
+
+    .process-text { font-size: 17px; line-height: 1.7; color: var(--grey-text); max-width: 500px; }
+
+    .process-punchline {
+      font-size: 16px;
+      font-style: italic;
+      color: var(--red);
+      text-align: right;
+      max-width: 220px;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+
+    /* ══════════ CASE STUDIES ══════════ */
+
+    .casestudies { background: var(--bg); border-bottom: 1px solid var(--border); }
+
+    .casestudies-inner { max-width: var(--max); margin: 0 auto; padding: 120px 48px; }
+
+    .casestudies-header { margin-bottom: 80px; }
+
+    .casestudies-heading {
+      font-size: clamp(40px, 5.5vw, 64px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      line-height: 1.0;
+      margin-top: 20px;
+      margin-bottom: 24px;
+    }
+
+    .casestudies-sub { font-size: 18px; color: var(--grey); }
+
+    /* Case rows */
+
+    .cases-list { list-style: none; }
+
+    .case-item { border-top: 1px solid var(--border); }
+    .case-item:last-child { border-bottom: 1px solid var(--border); }
+
+    .case-row {
+      display: grid;
+      grid-template-columns: 220px 1fr auto auto;
+      align-items: center;
+      gap: 48px;
+      padding: 48px 0;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s ease;
+    }
+
+    .case-name {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--black);
+      transition: color 0.2s ease;
+      line-height: 1.1;
+    }
+
+    .case-row:hover .case-name,
+    .case-item.open .case-name { color: var(--red); }
+
+    .case-meta { display: flex; flex-direction: column; gap: 4px; }
+
+    .case-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--black);
+    }
+
+    .case-text { font-size: 14px; color: var(--grey); line-height: 1.5; margin-bottom: 6px; }
+
+    .case-tagline {
+      font-size: 22px;
+      font-style: italic;
+      color: var(--red);
+      text-align: right;
+      max-width: 260px;
+      line-height: 1.3;
+      flex-shrink: 0;
+    }
+
+    .case-toggle {
+      font-size: 20px;
+      font-weight: 300;
+      color: var(--black);
+      width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+      transition: transform 0.3s ease, color 0.2s ease;
+      line-height: 1;
+    }
+
+    .case-item.open .case-toggle {
+      transform: rotate(45deg);
+      color: var(--red);
+    }
+
+    /* Accordion detail panel */
+
+    .case-detail {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+
+    .case-detail-inner {
+      padding: 0 0 56px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .case-story {
+      font-size: 18px;
+      line-height: 1.75;
+      color: var(--grey-text);
+      max-width: 680px;
+      padding-top: 40px;
+      margin-bottom: 40px;
+    }
+
+    .case-story-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-bottom: 16px;
+      display: block;
+      padding-top: 40px;
+    }
+
+    .media-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .media-placeholder,
+    .media-img,
+    .media-video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #e8e8e8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--grey);
+      letter-spacing: 0.05em;
+      object-fit: cover;
+      border: none;
+    }
+
+    iframe.media-video {
+      display: block;
+    }
+
+    .media-grid .media-placeholder--video {
+      background: #dddcda;
+    }
+
+    .case-collapse {
+      display: block;
+      margin-left: auto;
+      background: none;
+      border: none;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--red);
+      cursor: pointer;
+      padding: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .case-collapse:hover { opacity: 0.6; }
+
+    /* ══════════ CONTACT ══════════ */
+
+    .contact { background: var(--black); color: var(--white); border-top: 1px solid #1a1a1a; }
+
+    .contact-inner { max-width: var(--max); margin: 0 auto; padding: 160px 48px; }
+
+    .contact-heading {
+      font-size: clamp(48px, 7vw, 80px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      line-height: 1.0;
+      margin-bottom: 24px;
+    }
+
+    .contact-sub { font-size: 20px; color: var(--grey); margin-bottom: 56px; }
+
+    .contact-email {
+      display: inline-block;
+      font-size: clamp(24px, 3.5vw, 40px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      border-bottom: 1px solid #333333;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .contact-email:hover { color: var(--red); border-color: var(--red); }
+
+    .contact-phones { font-size: 14px; color: var(--grey); letter-spacing: 0.05em; margin-bottom: 56px; }
+
+    .btn-outline-white {
+      display: inline-block;
+      border: 1px solid var(--white);
+      color: var(--white);
+      background: transparent;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 14px 32px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .btn-outline-white:hover { background: var(--white); color: var(--black); }
+
+    /* ══════════ FOOTER ══════════ */
+
+    footer {
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 24px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    footer span { font-size: 12px; color: var(--grey); }
+
+    /* ══════════ RESPONSIVE ══════════ */
+
+    @media (max-width: 1024px) {
+      .about-inner {
+        grid-template-columns: 1fr;
+        gap: 56px;
+      }
+      .photo-placeholder { width: 100%; height: auto; aspect-ratio: 4/5; max-width: 380px; }
+    }
+
+    @media (max-width: 960px) {
+      nav { padding: 18px 24px; }
+
+      .hero { padding: 0 24px; }
+      .hero-footer { left: 24px; right: 24px; }
+
+      .manifesto-inner { grid-template-columns: 1fr; gap: 32px; padding: 80px 24px; }
+
+      .about-inner { padding: 80px 24px; }
+
+      .process-inner { padding: 80px 24px; }
+      .process-item {
+        grid-template-columns: 80px 1fr;
+        gap: 24px;
+        align-items: start;
+      }
+      .process-punchline { grid-column: 2; text-align: left; max-width: 100%; margin-top: 12px; }
+
+      .casestudies-inner { padding: 80px 24px; }
+
+      .case-row {
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        padding: 32px 0;
+        grid-template-areas:
+          "name  toggle"
+          "meta  meta"
+          "tag   tag";
+      }
+      .case-name    { grid-area: name; font-size: 22px; }
+      .case-meta    { grid-area: meta; }
+      .case-tagline { grid-area: tag; text-align: left; max-width: 100%; font-size: 18px; }
+      .case-toggle  { grid-area: toggle; }
+
+      .media-grid { grid-template-columns: 1fr; }
+
+      .contact-inner { padding: 100px 24px; }
+
+      footer { padding: 20px 24px; flex-direction: column; gap: 8px; text-align: center; }
+    }
+
+    @media (max-width: 540px) {
+      .hero-line--thin,
+      .hero-line--bold,
+      .hero-line--red { font-size: clamp(52px, 18vw, 100px); }
+      .hero-line--medium { font-size: clamp(32px, 9vw, 60px); }
+      .hero-tagline { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ NAV ═══ -->
+  <nav id="main-nav">
+    <span class="nav-brand">Frames Strategy</span>
+    <a href="mailto:shai@framesstrategy.com" class="nav-contact">shai@framesstrategy.com</a>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-label">Behavioral Brand Strategist</div>
+    <h1 class="hero-headline">
+      <span class="hero-line hero-line--thin">BRAND</span>
+      <span class="hero-line hero-line--bold">STRATEGY</span>
+      <span class="hero-line hero-line--medium">THAT FRAMES</span>
+      <span class="hero-line hero-line--red">REALITY.</span>
+    </h1>
+    <div class="hero-footer">
+      <span class="hero-scroll">Scroll &nbsp;↓</span>
+      <span class="hero-tagline">Brand Strategy &nbsp;·&nbsp; Creative Ideas &nbsp;·&nbsp; Business Impact</span>
+    </div>
+  </section>
+
+  <!-- ═══ MANIFESTO ═══ -->
+  <section class="manifesto">
+    <div class="manifesto-inner">
+      <div>
+        <span class="section-label">The Idea</span>
+      </div>
+      <div>
+        <p class="manifesto-quote">
+          Every brand has a story.<br>
+          Most are just telling the wrong one.
+        </p>
+        <p class="manifesto-body">
+          The facts of your brand don't change. What changes is how they're framed — what gets emphasized, what becomes the center of gravity, what makes people lean in instead of scroll past. Framing isn't spin. It's clarity. It's the difference between a brand people understand and one they ignore.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ABOUT ═══ -->
+  <section class="about">
+    <div class="about-inner">
+
+      <img src="shai1.png" alt="Shai Nissenboim" style="width:380px;height:480px;object-fit:cover;display:block;">
+
+      <div class="about-text">
+        <div class="about-name">SHAI<br>NISSENBOIM</div>
+        <div class="about-role">Behavioral Brand Strategist</div>
+        <div class="about-location">Amsterdam · Tel Aviv</div>
+        <div class="about-body">
+          <p>Nearly two decades at the intersection of strategy, creativity, and human behavior. I've led strategy at some of Israel's top agencies and brands — and today I work directly with organizations at the moments that matter most: building new brands from the ground up, launching platforms and products, or reframing existing brands when their story no longer holds.</p>
+          <p>My background is in psychology and neuroscience. I think about how people perceive meaning, form beliefs, and decide to act. That's what makes framing the sharpest tool in brand strategy — and the one most people underuse.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ PROCESS ═══ -->
+  <section class="process">
+    <div class="process-inner">
+      <div class="process-header">
+        <span class="section-label">The Process</span>
+        <h2 class="process-heading">Four moves.<br>One frame.</h2>
+        <p class="process-intro">Not a template. A way of thinking.</p>
+      </div>
+      <ul class="process-list">
+        <li class="process-item">
+          <div class="process-num">01</div>
+          <div class="process-content">
+            <div class="process-title">Find the Tension</div>
+            <p class="process-text">Every brand exists inside a tension — a gap between how it's seen and how it should be seen. Between what it offers and what people actually feel. Surface that tension clearly, and you already know where to go.</p>
+          </div>
+          <div class="process-punchline">No tension, no story. No story, no brand.</div>
+        </li>
+        <li class="process-item">
+          <div class="process-num">02</div>
+          <div class="process-content">
+            <div class="process-title">Build the Frame</div>
+            <p class="process-text">Framing isn't about changing facts — it's about choosing which facts lead. Same reality, different angle. The right frame makes your brand feel inevitable: obvious once you see it, impossible to unsee.</p>
+          </div>
+          <div class="process-punchline">One frame. Chosen for clarity, energy, and consequence.</div>
+        </li>
+        <li class="process-item">
+          <div class="process-num">03</div>
+          <div class="process-content">
+            <div class="process-title">Make it a Brand</div>
+            <p class="process-text">The frame becomes the foundation. From it flows everything people can actually touch: the purpose, the voice, the values, the proposition. Not a collection of assets — a point of view with legs.</p>
+          </div>
+          <div class="process-punchline">A brand people get immediately — and don't forget.</div>
+        </li>
+        <li class="process-item">
+          <div class="process-num">04</div>
+          <div class="process-content">
+            <div class="process-title">Move</div>
+            <p class="process-text">Strategy without momentum is just a document. Once the frame is right, decisions get easier, teams align faster, and execution stops being a fight. The brand starts pulling things forward.</p>
+          </div>
+          <div class="process-punchline">Momentum. Not just meaning.</div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══ CASE STUDIES ═══ -->
+  <section class="casestudies">
+    <div class="casestudies-inner">
+      <div class="casestudies-header">
+        <span class="section-label">Work</span>
+        <h2 class="casestudies-heading">The frame changes<br>everything.</h2>
+        <p class="casestudies-sub">Four brands. Four tensions. Four reframes.</p>
+      </div>
+
+      <ul class="cases-list">
+
+        <!-- CASE 1 -->
+        <li class="case-item">
+          <div class="case-row" onclick="toggleCase(this)">
+            <span class="case-name">Keshet 12 / +12</span>
+            <div class="case-meta">
+              <span class="case-label">Tension</span>
+              <span class="case-text">A new OTT platform carrying Channel 12 content — but so did every other platform.</span>
+              <span class="case-label">Reframe</span>
+              <span class="case-text">Not another streaming app. The flagship store of Channel 12.</span>
+            </div>
+            <span class="case-tagline">"All you love. Plus."</span>
+            <span class="case-toggle">+</span>
+          </div>
+          <div class="case-detail">
+            <div class="case-detail-inner">
+              <span class="case-story-label">The Story</span>
+              <p class="case-story">Keshet 12 launched +12 as their flagship OTT platform. The challenge was standing out in a crowded market where every platform carried the same content. By reframing +12 as the official home of Channel 12 — not just another app — we gave it authority, identity, and a reason to be chosen first.</p>
+              <div class="media-grid">
+                <div class="media-placeholder">[ Image ]</div>
+                <div class="media-placeholder">[ Image ]</div>
+                <div class="media-placeholder media-placeholder--video">[ Video ]</div>
+              </div>
+              <button class="case-collapse" onclick="toggleCase(this.closest('.case-item').querySelector('.case-row'))">Collapse ↑</button>
+            </div>
+          </div>
+        </li>
+
+        <!-- CASE 2 -->
+        <li class="case-item">
+          <div class="case-row" onclick="toggleCase(this)">
+            <span class="case-name">AU10TIX</span>
+            <div class="case-meta">
+              <span class="case-label">Tension</span>
+              <span class="case-text">A world-leading identity verification company speaking only the language of fear — fraud, risk, compliance.</span>
+              <span class="case-label">Reframe</span>
+              <span class="case-text">From fear of fraud to love for catching it.</span>
+            </div>
+            <span class="case-tagline">"For the love of fraud."</span>
+            <span class="case-toggle">+</span>
+          </div>
+          <div class="case-detail">
+            <div class="case-detail-inner">
+              <span class="case-story-label">The Story</span>
+              <p class="case-story">AU10TIX was a global leader hiding behind jargon. The entire industry spoke fear — breach, risk, threat. We flipped the emotion entirely: reframing AU10TIX as a company that doesn't fear fraud, it hunts it. The new brand became a rallying cry for the team and a differentiator in the market.</p>
+              <div class="media-grid">
+                <div class="media-placeholder">[ Image ]</div>
+                <div class="media-placeholder">[ Image ]</div>
+                <div class="media-placeholder media-placeholder--video">[ Video ]</div>
+              </div>
+              <button class="case-collapse" onclick="toggleCase(this.closest('.case-item').querySelector('.case-row'))">Collapse ↑</button>
+            </div>
+          </div>
+        </li>
+
+        <!-- CASE 3 -->
+        <li class="case-item">
+          <div class="case-row" onclick="toggleCase(this)">
+            <span class="case-name">Goldys</span>
+            <div class="case-meta">
+              <span class="case-label">Tension</span>
+              <span class="case-text">A beloved Jewish deli with a loyal following, trying to grow without losing its soul.</span>
+              <span class="case-label">Reframe</span>
+              <span class="case-text">A fine-shmeker institution — tradition held with modern care.</span>
+            </div>
+            <span class="case-tagline">"Jewish deli at your home."</span>
+            <span class="case-toggle">+</span>
+          </div>
+          <div class="case-detail">
+            <div class="case-detail-inner">
+              <span class="case-story-label">The Story</span>
+              <p class="case-story">Goldys had everything — loyal customers, incredible food, real history. What it lacked was a frame that honored the past while making it feel current. We built a brand that leaned into its Jewish identity with pride and warmth, creating something that felt timeless rather than dated.</p>
+              <div class="media-grid">
+                <div class="media-placeholder">[ Image ]</div>
+                <div class="media-placeholder">[ Image ]</div>
+              </div>
+              <button class="case-collapse" onclick="toggleCase(this.closest('.case-item').querySelector('.case-row'))">Collapse ↑</button>
+            </div>
+          </div>
+        </li>
+
+        <!-- CASE 4 -->
+        <li class="case-item">
+          <div class="case-row" onclick="toggleCase(this)">
+            <span class="case-name">Arkia</span>
+            <div class="case-meta">
+              <span class="case-label">Tension</span>
+              <span class="case-text">An Israeli airline launching a campaign at a moment when the whole country was suffocating.</span>
+              <span class="case-label">Reframe</span>
+              <span class="case-text">Don't sell vacation. Sell relief.</span>
+            </div>
+            <span class="case-tagline">"The National Ventilator."</span>
+            <span class="case-toggle">+</span>
+          </div>
+          <div class="case-detail">
+            <div class="case-detail-inner">
+              <span class="case-story-label">The Story</span>
+              <p class="case-story">Timing is everything in brand strategy. Arkia needed a campaign at one of the most tense periods in Israeli history. Instead of selling beaches and flights, we sold what people actually needed: relief. The campaign became a cultural moment precisely because it named the feeling nobody else would.</p>
+              <div class="media-grid">
+                <div class="media-placeholder">[ Image ]</div>
+                <div class="media-placeholder">[ Image ]</div>
+                <div class="media-placeholder media-placeholder--video">[ Video ]</div>
+              </div>
+              <button class="case-collapse" onclick="toggleCase(this.closest('.case-item').querySelector('.case-row'))">Collapse ↑</button>
+            </div>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══ CONTACT ═══ -->
+  <section class="contact">
+    <div class="contact-inner">
+      <h2 class="contact-heading">Need a<br>new frame?</h2>
+      <p class="contact-sub">Let's find the tension and build from there.</p>
+      <a href="mailto:shai@framesstrategy.com" class="contact-email">shai@framesstrategy.com</a>
+      <p class="contact-phones">+31-6-29377235 (NL) &nbsp;·&nbsp; +972-54-4510414 (IL)</p>
+      <a href="mailto:shai@framesstrategy.com" class="btn-outline-white">Get in Touch →</a>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <span>© 2025 Frames Strategy</span>
+    <span>Shai Nissenboim</span>
+  </footer>
+
+  <script>
+    // ── Nav hide/show on scroll ──
+    (function () {
+      var nav = document.getElementById('main-nav');
+      var lastY = 0;
+      var ticking = false;
+      window.addEventListener('scroll', function () {
+        if (!ticking) {
+          window.requestAnimationFrame(function () {
+            var y = window.scrollY;
+            nav.classList.toggle('hidden', y > lastY && y > 80);
+            lastY = y;
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+    })();
+
+    // ── Accordion: one open at a time ──
+    function toggleCase(row) {
+      var item   = row.closest('.case-item');
+      var detail = item.querySelector('.case-detail');
+      var isOpen = item.classList.contains('open');
+
+      // Close all
+      document.querySelectorAll('.case-item.open').forEach(function (openItem) {
+        openItem.classList.remove('open');
+        var d = openItem.querySelector('.case-detail');
+        d.style.maxHeight = '0';
+      });
+
+      // Open clicked if it was closed
+      if (!isOpen) {
+        item.classList.add('open');
+        detail.style.maxHeight = detail.scrollHeight + 'px';
+      }
+    }
+  </script>
+
+</body>
+</html>
+
+<!--
+═══════════════════════════════════════════
+HOW TO ADD A NEW CASE STUDY
+═══════════════════════════════════════════
+
+1. Find the section: <ul class="cases-list">
+2. Copy everything between these markers and paste it before the closing </ul>:
+
+─── COPY FROM HERE ───
+
+<li class="case-item">
+  <div class="case-row" onclick="toggleCase(this)">
+    <span class="case-name">BRAND NAME HERE</span>
+    <div class="case-meta">
+      <span class="case-label">Tension</span>
+      <span class="case-text">Write the tension here.</span>
+      <span class="case-label">Reframe</span>
+      <span class="case-text">Write the reframe here.</span>
+    </div>
+    <span class="case-tagline">"Tagline here."</span>
+    <span class="case-toggle">+</span>
+  </div>
+  <div class="case-detail">
+    <div class="case-detail-inner">
+      <span class="case-story-label">The Story</span>
+      <p class="case-story">Write 2-3 sentences about the project here.</p>
+      <div class="media-grid">
+        <div class="media-placeholder">[ Image ]</div>
+        <div class="media-placeholder">[ Image ]</div>
+      </div>
+      <button class="case-collapse" onclick="toggleCase(this.closest('.case-item').querySelector('.case-row'))">Collapse ↑</button>
+    </div>
+  </div>
+</li>
+
+─── COPY TO HERE ───
+
+3. Replace: BRAND NAME HERE, tension text, reframe text, tagline, story.
+4. To add a real image: replace <div class="media-placeholder">[ Image ]</div>
+   with: <img src="your-image.jpg" alt="description" class="media-img">
+5. To add a real video: replace a placeholder with:
+   <video controls class="media-video"><source src="your-video.mp4" type="video/mp4"></video>
+   OR for YouTube:
+   <iframe class="media-video" src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allowfullscreen></iframe>
+
+That's it. Save the file and refresh your browser.
+═══════════════════════════════════════════
+-->
